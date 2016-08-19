@@ -74,7 +74,7 @@ impl PaddedToken {
     }
     /// Unmasks a `PaddedToken` and returning the underlying `Token`.
     pub fn unmask(&self) -> Token {
-        let otp: u32 = ((self.0 & 0xFFFFFFFF00000000) >> 32) as u32;
+        let otp: u32 = (self.0 >> 32) as u32;
         let masked: u32 = (self.0 & 0xFFFFFFFF) as u32;
         Token(otp ^ masked)
     }
