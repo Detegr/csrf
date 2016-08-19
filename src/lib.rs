@@ -26,7 +26,7 @@ use std::error::Error;
 pub struct Base64DecodeError(pub String);
 
 /// Actual token that `PaddedToken`s are compared against. Meant to be stored in the server session.
-#[derive(Debug, PartialEq)]
+#[derive(Debug, Default, PartialEq)]
 pub struct Token(u32);
 impl Token {
     /// Creates a new `Token` using operating system's random number generator.
