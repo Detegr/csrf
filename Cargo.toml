@@ -1,0 +1,10 @@
+[package]
+authors = ["Antti Keränen <detegr@gmail.com>"]
+name = "csrf"
+version = "0.1.0"
+license = "MIT/Apache-2.0"
+
+[dependencies]
+base64 = "0.2.0"
+byteorder = "0.5.3"
+rand = "0.3.14"
