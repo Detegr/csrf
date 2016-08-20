@@ -11,22 +11,24 @@
 
 extern crate base64;
 extern crate byteorder;
+extern crate constant_time_eq;
 extern crate rand;
 
 use byteorder::{LittleEndian, ReadBytesExt};
+use constant_time_eq::constant_time_eq;
 use rand::Rng;
+use std::error::Error;
 use std::fmt;
 use std::io::Cursor;
 use std::mem;
 use std::slice;
-use std::error::Error;
 
 /// Error type for wrapping errors that can happen during base64 decoding.
 #[derive(Debug)]
 pub struct Base64DecodeError(pub String);
 
 /// Actual token that `PaddedToken`s are compared against. Meant to be stored in the server session.
-#[derive(Debug, Default, PartialEq)]
+#[derive(Debug, Default)]
 pub struct Token(u32);
 impl Token {
     /// Creates a new `Token` using operating system's random number generator.
@@ -56,13 +58,18 @@ impl fmt::Display for Token {
         write!(fmt, "{}", base64::encode(self.into()))
     }
 }
+impl PartialEq for Token {
+    fn eq(&self, rhs: &Token) -> bool {
+        constant_time_eq(self.into(), rhs.into())
+    }
+}
 
 /// A token that can be used in HTML forms.
 /// A compromise is made between security and convenience in a way that every
 /// token is different, but all the data needed for decoding the real token is present.
 /// `PaddedToken` internally is a 32-bit one-time token concatenated with the real `Token` that is
 /// XOR'd with the one-time token.
-#[derive(Debug, PartialEq)]
+#[derive(Debug)]
 pub struct PaddedToken(u64);
 impl PaddedToken {
     /// Creates a new `PaddedToken` using operating system's random number generator.
@@ -98,6 +105,11 @@ impl<'a> Into<&'a [u8]> for &'a PaddedToken {
 impl fmt::Display for PaddedToken {
     fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
         write!(fmt, "{}", base64::encode(self.into()))
+    }
+}
+impl PartialEq for PaddedToken {
+    fn eq(&self, rhs: &PaddedToken) -> bool {
+        constant_time_eq(self.into(), rhs.into())
     }
 }
 
